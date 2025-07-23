@@ -291,7 +291,7 @@ for res in df['Resolution'].unique():
 ### Kruskal-Wallis test
 
 ```python
-roups = []
+groups = []
 for res in df['Resolution'].unique():
     group_prices = df[df['Resolution'] == res]['Price']
     groups.append(group_prices)
@@ -305,7 +305,87 @@ p_value: 0.00000
 
 ## Вывод:
 
-Статистически значиыме различия в цене в зависимости от разрешения экрана имеются.
+Статистически значимые различия в цене в зависимости от разрешения экрана имеются.
+
+## Гипотеза 4: Стоят ли ноутбуки с рейтингом выше 70 дороже, чем ноутбуки с более низким рейтингом?
+
+**H0:** Различий нету, цена одинакова.  
+**H1:** Более высокорейтинговые ноутбуки стоят иначе.
+
+### Проверка нормальности (Shapiro-Wilk)
+
+```python
+stat_h,p_h = stats.shapiro(high_rating['Price'])
+stat_l,p_l = stats.shapiro(low_rating['Price'])
+print(f'high_rating - p_value:{p_h:.5f}')
+print(f'low_rating - p_value:{p_l:.5f}')
+```
+## Результаты:
+
+- **high_rating** - p_value:0.00015
+- **low_rating** - p_value:0.00000
+
+Распределения группы не являются нормальным. Будем использовать тест Манна-Уитни.
+
+### Mann–Whitney U-тест
+
+```python
+stat,p = stats.mannwhitneyu(high_rating['Price'],low_rating['Price'],alternative='two-sided')
+print('Mann–Whitney U-test:')
+print(f'p-value:',p)
+```
+
+## Результат:
+
+p-value: 5.411303842312321e-33
+
+## Вывод:
+
+Статистически значимых различий в цене имеются, отвергаем H0.
+
+## Гипотеза 3: Стоят ли ноутбуки с видеокартами NVIDIA дороже, чем ноутбуки с видеокартами Intel или AMD?
+
+**H0:** Все типы GPU стоят одинаково.  
+**H1:** NVIDIA модели дороже.
+
+### Проверка нормальности (Shapiro-Wilk)
+
+```python
+for br in df_gpu['GPU_brand'].unique():
+    stat, p = stats.shapiro(df_gpu[df_gpu['GPU_brand']==br]['Price'])
+    print(f'{br} - p_value:{p:.6f}')
+```
+## Результаты:
+
+- **AMD** - p_value:0.000003
+- **Intel** - p_value:0.000000
+- **Nvidia** - p_value:0.000000
+
+Распределения данных не соответствуют нормальному закону, поэтому применение ANOVA некорректно. Вместо этого будем использовать непараметрический тест Крускала–Уоллиса для проверки статистических различий между группами.
+
+### Kruskal-Wallis test
+
+```python
+groups = []
+for br in df_gpu['GPU_brand'].unique():
+    gpus = df_gpu[df_gpu['GPU_brand']==br]['Price']
+    groups.append(gpus)
+stat,p = stats.kruskal(*groups)
+print(f'Kruskal-Wallis test: statistic={stat:.4f},p_value={p:.5f}')
+```
+
+## Результат:
+
+p_value: 0.00000
+
+## Вывод:
+
+Статистически значимые различия в цене в зависимости бренда GPU имеются, чипы от Nvidia в среднем стоят дороже. Для наглядности ниже представлены графики с распределением ноутбуков по бренду видеокарты и распределение цен по брендам процессоров.
+![Распределение цен по брендам процессоров](./charts/Распределение%20цен%20по%20брендам%20процессоров.png)
+![Распределение ноутбуков по бренду видеокарты](./charts/Распределение%20ноутбуков%20по%20бренду%20видеокарты.png)
+
+
+
 
 
 
