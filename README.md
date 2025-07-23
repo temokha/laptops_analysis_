@@ -189,7 +189,7 @@
 for gpu_type in df['GPU_type'].unique():
     stat, p = stats.shapiro(df[df['GPU_type'] == gpu_type]['Price'])
     print(f'{gpu_type} - p-value:', p)
-
+```
 
 
 ## Результаты:
@@ -206,7 +206,7 @@ price_integrated = df[df['GPU_type'] == 'integrated']['Price']
 price_dedicated = df[df['GPU_type'] == 'dedicated']['Price']
 stat, p = stats.mannwhitneyu(price_integrated, price_dedicated, alternative='two-sided')
 print('p-value:', p)
-
+```
 
 
 
